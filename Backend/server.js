@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 import connectDB from "./config/db.js";
-
+import serviceRoutes from "./routes/serviceRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
-
+import eventRoutes from "./routes/eventRoutes.js";
 dotenv.config();
 
 connectDB();
@@ -17,7 +17,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/admin", adminRoutes);
-
+app.use("/api/events", eventRoutes);
+app.use("/api/services", serviceRoutes);
 app.get("/", (req, res) => {
   res.send("Eventra API Running");
 });
