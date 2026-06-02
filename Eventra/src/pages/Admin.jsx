@@ -3,27 +3,17 @@ import React, {
   useState,
 } from "react";
 
-import "../styles/admin.css";
-
 import axios from "axios";
 
-const Admin = () => {
-  // =========================
-  // LOCAL STORAGE
-  // =========================
+import "../styles/admin.css";
 
+const Admin = () => {
   const adminInfo = JSON.parse(
     localStorage.getItem("adminInfo")
   );
 
-  // =========================
-  // STATES
-  // =========================
-
   const [admin, setAdmin] =
     useState(adminInfo);
-
-  // LOGIN FORM
 
   const [formData, setFormData] =
     useState({
@@ -31,11 +21,22 @@ const Admin = () => {
       password: "",
     });
 
-  // EVENTS
+  const [events, setEvents] =
+    useState([]);
 
-  const [events, setEvents] = useState(
-    []
-  );
+  const [services, setServices] =
+    useState([]);
+
+  const [editingEvent, setEditingEvent] =
+    useState(null);
+
+  const [
+    editingService,
+    setEditingService,
+  ] = useState(null);
+
+  const [searchTerm, setSearchTerm] =
+    useState("");
 
   const [eventData, setEventData] =
     useState({
@@ -43,11 +44,6 @@ const Admin = () => {
       image: "",
       description: "",
     });
-
-  // SERVICES
-
-  const [services, setServices] =
-    useState([]);
 
   const [serviceData, setServiceData] =
     useState({
@@ -57,10 +53,6 @@ const Admin = () => {
       description: "",
     });
 
-  // =========================
-  // LOGIN INPUT CHANGE
-  // =========================
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -68,10 +60,6 @@ const Admin = () => {
         e.target.value,
     });
   };
-
-  // =========================
-  // EVENT INPUT CHANGE
-  // =========================
 
   const handleEventChange = (
     e
@@ -83,10 +71,6 @@ const Admin = () => {
     });
   };
 
-  // =========================
-  // SERVICE INPUT CHANGE
-  // =========================
-
   const handleServiceChange = (
     e
   ) => {
@@ -96,10 +80,6 @@ const Admin = () => {
         e.target.value,
     });
   };
-
-  // =========================
-  // ADMIN LOGIN
-  // =========================
 
   const handleLogin = async (
     e
@@ -125,14 +105,10 @@ const Admin = () => {
       alert(
         error?.response?.data
           ?.message ||
-          "Something went wrong"
+          "Login Failed"
       );
     }
   };
-
-  // =========================
-  // LOGOUT
-  // =========================
 
   const logoutHandler = () => {
     localStorage.removeItem(
@@ -141,10 +117,6 @@ const Admin = () => {
 
     setAdmin(null);
   };
-
-  // =========================
-  // FETCH EVENTS
-  // =========================
 
   const fetchEvents = async () => {
     try {
@@ -158,57 +130,6 @@ const Admin = () => {
       console.log(error);
     }
   };
-
-  // =========================
-  // CREATE EVENT
-  // =========================
-
-  const createEvent = async (
-    e
-  ) => {
-    e.preventDefault();
-
-    try {
-      await axios.post(
-        "http://localhost:5000/api/events",
-        eventData
-      );
-
-      alert("Event Added");
-
-      fetchEvents();
-
-      setEventData({
-        title: "",
-        image: "",
-        description: "",
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // =========================
-  // DELETE EVENT
-  // =========================
-
-  const deleteEvent = async (
-    id
-  ) => {
-    try {
-      await axios.delete(
-        `http://localhost:5000/api/events/${id}`
-      );
-
-      fetchEvents();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // =========================
-  // FETCH SERVICES
-  // =========================
 
   const fetchServices =
     async () => {
@@ -224,11 +145,72 @@ const Admin = () => {
       }
     };
 
-  // =========================
-  // CREATE SERVICE
-  // =========================
+  const createEvent = async (
+    e
+  ) => {
+    e.preventDefault();
 
-  const createService =
+    try {
+      await axios.post(
+        "http://localhost:5000/api/events",
+        eventData
+      );
+
+      fetchEvents();
+
+      setEventData({
+        title: "",
+        image: "",
+        description: "",
+      });
+
+      alert("Event Added");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateEvent =
+    async () => {
+      try {
+        await axios.put(
+          `http://localhost:5000/api/events/${editingEvent._id}`,
+          eventData
+        );
+
+        fetchEvents();
+
+        setEditingEvent(
+          null
+        );
+
+        setEventData({
+          title: "",
+          image: "",
+          description: "",
+        });
+
+        alert(
+          "Event Updated"
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+  const deleteEvent =
+    async (id) => {
+      try {
+        await axios.delete(
+          `http://localhost:5000/api/events/${id}`
+        );
+
+        fetchEvents();
+      } catch (error) {
+        console.log(error);
+      }
+    };
+      const createService =
     async (e) => {
       e.preventDefault();
 
@@ -238,8 +220,6 @@ const Admin = () => {
           serviceData
         );
 
-        alert("Service Added");
-
         fetchServices();
 
         setServiceData({
@@ -248,14 +228,41 @@ const Admin = () => {
           image: "",
           description: "",
         });
+
+        alert("Service Added");
       } catch (error) {
         console.log(error);
       }
     };
 
-  // =========================
-  // DELETE SERVICE
-  // =========================
+  const updateService =
+    async () => {
+      try {
+        await axios.put(
+          `http://localhost:5000/api/services/${editingService._id}`,
+          serviceData
+        );
+
+        fetchServices();
+
+        setEditingService(
+          null
+        );
+
+        setServiceData({
+          name: "",
+          price: "",
+          image: "",
+          description: "",
+        });
+
+        alert(
+          "Service Updated"
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
   const deleteService =
     async (id) => {
@@ -270,371 +277,36 @@ const Admin = () => {
       }
     };
 
-  // =========================
-  // USE EFFECT
-  // =========================
+  const filteredEvents =
+    events.filter((event) =>
+      event.title
+        .toLowerCase()
+        .includes(
+          searchTerm.toLowerCase()
+        )
+    );
+
+  const filteredServices =
+    services.filter(
+      (service) =>
+        service.name
+          .toLowerCase()
+          .includes(
+            searchTerm.toLowerCase()
+          )
+    );
 
   useEffect(() => {
     fetchEvents();
-
     fetchServices();
   }, []);
 
   return (
-    <>
-      {!admin ? (
-        // =========================
-        // LOGIN PAGE
-        // =========================
-
-        <div className="login-container">
-          <form
-            className="login-form"
-            onSubmit={
-              handleLogin
-            }
-          >
-            <h2>
-              EVENTRA ADMIN
-            </h2>
-
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter Email"
-              value={
-                formData.email
-              }
-              onChange={
-                handleChange
-              }
-              required
-            />
-
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter Password"
-              value={
-                formData.password
-              }
-              onChange={
-                handleChange
-              }
-              required
-            />
-
-            <button type="submit">
-              Login
-            </button>
-          </form>
-        </div>
-      ) : (
-        // =========================
-        // DASHBOARD
-        // =========================
-
-        <div className="dashboard">
-          {/* SIDEBAR */}
-
-          <aside className="sidebar">
-            <h2>EVENTRA</h2>
-
-            <ul>
-              <li>
-                Dashboard
-              </li>
-
-              <li>
-                Events
-              </li>
-
-              <li>
-                Services
-              </li>
-
-              <li>
-                Vendors
-              </li>
-
-              <li>
-                Bookings
-              </li>
-            </ul>
-
-            <button
-              onClick={
-                logoutHandler
-              }
-            >
-              Logout
-            </button>
-          </aside>
-
-          {/* MAIN CONTENT */}
-
-          <main className="main-content">
-            <h1>
-              Welcome,{" "}
-              {admin?.name}
-            </h1>
-
-            {/* DASHBOARD CARDS */}
-
-            <div className="cards">
-              <div className="card">
-                <h2>
-                  Total Users
-                </h2>
-
-                <p>120</p>
-              </div>
-
-              <div className="card">
-                <h2>
-                  Total Vendors
-                </h2>
-
-                <p>40</p>
-              </div>
-
-              <div className="card">
-                <h2>
-                  Total Bookings
-                </h2>
-
-                <p>75</p>
-              </div>
-
-              <div className="card">
-                <h2>
-                  Total Revenue
-                </h2>
-
-                <p>
-                  ₹2,50,000
-                </p>
-              </div>
-            </div>
-
-            {/* EVENT FORM */}
-
-            <div className="event-form-container">
-              <form
-                onSubmit={
-                  createEvent
-                }
-                className="event-form"
-              >
-                <h2>
-                  Add Event
-                </h2>
-
-                <input
-                  type="text"
-                  name="title"
-                  placeholder="Event Title"
-                  value={
-                    eventData.title
-                  }
-                  onChange={
-                    handleEventChange
-                  }
-                />
-
-                <input
-                  type="text"
-                  name="image"
-                  placeholder="Image URL"
-                  value={
-                    eventData.image
-                  }
-                  onChange={
-                    handleEventChange
-                  }
-                />
-
-                <textarea
-                  name="description"
-                  placeholder="Description"
-                  value={
-                    eventData.description
-                  }
-                  onChange={
-                    handleEventChange
-                  }
-                ></textarea>
-
-                <button type="submit">
-                  Add Event
-                </button>
-              </form>
-            </div>
-
-            {/* EVENT LIST */}
-
-            <div className="event-list">
-              {events.map(
-                (event) => (
-                  <div
-                    className="event-card"
-                    key={
-                      event._id
-                    }
-                  >
-                    <img
-                      src={
-                        event.image
-                      }
-                      alt=""
-                    />
-
-                    <h3>
-                      {
-                        event.title
-                      }
-                    </h3>
-
-                    <p>
-                      {
-                        event.description
-                      }
-                    </p>
-
-                    <button
-                      onClick={() =>
-                        deleteEvent(
-                          event._id
-                        )
-                      }
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )
-              )}
-            </div>
-
-            {/* SERVICE FORM */}
-
-            <div className="service-form-container">
-              <form
-                onSubmit={
-                  createService
-                }
-                className="service-form"
-              >
-                <h2>
-                  Add Service
-                </h2>
-
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Service Name"
-                  value={
-                    serviceData.name
-                  }
-                  onChange={
-                    handleServiceChange
-                  }
-                />
-
-                <input
-                  type="number"
-                  name="price"
-                  placeholder="Price"
-                  value={
-                    serviceData.price
-                  }
-                  onChange={
-                    handleServiceChange
-                  }
-                />
-
-                <input
-                  type="text"
-                  name="image"
-                  placeholder="Image URL"
-                  value={
-                    serviceData.image
-                  }
-                  onChange={
-                    handleServiceChange
-                  }
-                />
-
-                <textarea
-                  name="description"
-                  placeholder="Description"
-                  value={
-                    serviceData.description
-                  }
-                  onChange={
-                    handleServiceChange
-                  }
-                ></textarea>
-
-                <button type="submit">
-                  Add Service
-                </button>
-              </form>
-            </div>
-
-            {/* SERVICE LIST */}
-
-            <div className="service-list">
-              {services.map(
-                (service) => (
-                  <div
-                    className="service-card"
-                    key={
-                      service._id
-                    }
-                  >
-                    <img
-                      src={
-                        service.image
-                      }
-                      alt=""
-                    />
-
-                    <h3>
-                      {
-                        service.name
-                      }
-                    </h3>
-
-                    <p>
-                      {
-                        service.description
-                      }
-                    </p>
-
-                    <h4>
-                      ₹
-                      {
-                        service.price
-                      }
-                    </h4>
-
-                    <button
-                      onClick={() =>
-                        deleteService(
-                          service._id
-                        )
-                      }
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )
-              )}
-            </div>
-          </main>
-        </div>
-      )}
-    </>
+    <div>
+      <h1>
+        Admin Panel Ready
+      </h1>
+    </div>
   );
 };
 

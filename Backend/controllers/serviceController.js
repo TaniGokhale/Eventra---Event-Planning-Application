@@ -1,5 +1,6 @@
 import Service from "../models/Service.js";
 
+// CREATE SERVICE
 export const createService = async (req, res) => {
   try {
     const { name, price, image, description } =
@@ -20,6 +21,7 @@ export const createService = async (req, res) => {
   }
 };
 
+// GET ALL SERVICES
 export const getServices = async (req, res) => {
   try {
     const services = await Service.find();
@@ -32,17 +34,60 @@ export const getServices = async (req, res) => {
   }
 };
 
+// UPDATE SERVICE
+export const updateService = async (req, res) => {
+  try {
+    const { name, price, image, description } =
+      req.body;
+
+    const updatedService =
+      await Service.findByIdAndUpdate(
+        req.params.id,
+        {
+          name,
+          price,
+          image,
+          description,
+        },
+        {
+          new: true,
+        }
+      );
+
+    if (!updatedService) {
+      return res.status(404).json({
+        message: "Service not found",
+      });
+    }
+
+    res.status(200).json(updatedService);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// DELETE SERVICE
 export const deleteService = async (
   req,
   res
 ) => {
   try {
-    await Service.findByIdAndDelete(
-      req.params.id
-    );
+    const deletedService =
+      await Service.findByIdAndDelete(
+        req.params.id
+      );
+
+    if (!deletedService) {
+      return res.status(404).json({
+        message: "Service not found",
+      });
+    }
 
     res.status(200).json({
-      message: "Service Deleted",
+      message:
+        "Service Deleted Successfully",
     });
   } catch (error) {
     res.status(500).json({
